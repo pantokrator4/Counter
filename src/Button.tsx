@@ -7,10 +7,15 @@ type ButtonType = {
 };
 
 export const Button = (props: ButtonType) => {
-  return <StyledButton onClick={props.callBack} disabled={props.disabled}>{props.title}</StyledButton>;
+  return (
+    <StyledButton onClick={props.callBack} disabled={props.disabled}>
+      {props.title}
+    </StyledButton>
+  );
 };
 
 const StyledButton = styled.button`
+  font-family: "Poppins", sans-serif;
   cursor: pointer;
   width: 100px;
   height: 70px;

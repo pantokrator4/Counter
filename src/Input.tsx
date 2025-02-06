@@ -1,33 +1,39 @@
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent } from "react";
 import styled from "styled-components";
 
 type InputType = {
   title: string;
-  callBack: (value: string) => void
+  callBack: (value: string) => void;
+  BkgColor: boolean;
+  currentValue: number;
 };
 
 export const Input = (props: InputType) => {
-  const [inputValue, setInputvalue] = useState<string>("");
   const onChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
-    setInputvalue(e.currentTarget.value);
+    const newValue = e.currentTarget.value;
+    props.callBack(newValue);
   };
-
-  props.callBack(inputValue)
 
   return (
     <div style={{ display: "flex", alignItems: "center" }}>
       <Title>{props.title}</Title>
-      <StyledInput onChange={onChangeHandler} value={inputValue} type="number"/>
+      <StyledInput
+        type="text"
+        value={props.currentValue}
+        onChange={onChangeHandler}
+        $BkgColor={props.BkgColor}
+      />
     </div>
   );
 };
 
 const Title = styled.span`
-  font-size: 32px;
+  font-size: 28px;
   font-weight: 600;
 `;
 
-const StyledInput = styled.input`
+const StyledInput = styled.input<{ $BkgColor: boolean }>`
+  text-align: center;
   font-size: 16px;
   font-weight: 600;
   padding: 5px;
@@ -35,12 +41,11 @@ const StyledInput = styled.input`
   width: 100px;
   border-radius: 10px;
   margin-left: 20px;
-  background: #333336;
+  background-color: ${({ $BkgColor }) => ($BkgColor ? "white" : "#d66a6a")};
   border-style: none;
   align-items: center;
-  color: #fff;
 
   &:focus {
-    outline: 2px solid #fff;
+    outline: 3px solid ${({ $BkgColor }) => ($BkgColor ? "#333336" : "#9e3535")};
   }
 `;

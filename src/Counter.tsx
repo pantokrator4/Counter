@@ -7,34 +7,65 @@ import "./App.css";
 export const Counter = () => {
   const [countResult, setCountResult] = useState<number>(0);
   const [isSetWindowOpened, setisSetWindowOpened] = useState<boolean>(false);
-  const [valueFromInput, setValueFromInput] = useState<number>(0)
-  const isBtnRed = countResult > 9;
-  const isCountEmpty = countResult <= 0;
+  const [inputStartValue, setInputStartValue] = useState<number>(0);
+  const [inputMaxValue, setInputMaxValue] = useState<number>(10);
+
+  const regex = /^\d*$/;
+
+  const isRed = countResult >= inputMaxValue;
+  const isCountEmpty = countResult <= inputStartValue;
+  const isMaxMoreStart =
+    inputMaxValue > inputStartValue &&
+    inputMaxValue >= 0 &&
+    inputStartValue >= 0;
 
   useEffect(() => {
     let valueAsString = localStorage.getItem("counterKey");
+    let localInputStartValue = localStorage.getItem("localInputStartValue");
+    let localInputMaxValue = localStorage.getItem("localInputMaxValue");
+    
     if (valueAsString) {
       setCountResult(JSON.parse(valueAsString));
+    }
+    if (localInputStartValue) {
+      setInputStartValue(JSON.parse(localInputStartValue));
+    }
+    if (localInputMaxValue) {
+      setInputMaxValue(JSON.parse(localInputMaxValue));
     }
   }, []);
 
   useEffect(() => {
     localStorage.setItem("counterKey", JSON.stringify(countResult));
-  }, [countResult]);
+    localStorage.setItem(
+      "localInputStartValue",
+      JSON.stringify(inputStartValue)
+    );
+    localStorage.setItem("localInputMaxValue", JSON.stringify(inputMaxValue));
+  }, [countResult, inputStartValue, inputMaxValue]);
 
   const increment = () => {
     setCountResult(countResult + 1);
   };
   const reset = () => {
-    setCountResult(0);
+    setCountResult(inputStartValue);
   };
 
-  const getValue = (value: string) => {
-    setValueFromInput(Number(value))
-  }
+  const getStartValueFromInput = (value: string) => {
+    if (regex.test(value)) {
+      setInputStartValue(Number(value));
+    }
+  };
+
+  const getMaxValueFromInput = (value: string) => {
+    if (regex.test(value)) {
+      setInputMaxValue(Number(value));
+    }
+  };
 
   const setStartValue = () => {
-    setCountResult(valueFromInput)
+    setCountResult(inputStartValue);
+    setisSetWindowOpened(!isSetWindowOpened);
   };
 
   const changeSetStatus = () => {
@@ -46,22 +77,43 @@ export const Counter = () => {
       <CounterDisplay>
         {isSetWindowOpened ? (
           <>
-            <Input title="set max:" callBack={()=>{}} />
-            <Input title="set start:" callBack={getValue} />
+            {!isMaxMoreStart ? (
+              <span style={{ color: "#b22222", fontSize: "28px" }}>
+                Incorrect Values
+              </span>
+            ) : (
+              <span style={{ fontSize: "28px" }}>Set a value</span>
+            )}
+            <Input
+              title="set max:"
+              callBack={getMaxValueFromInput}
+              BkgColor={isMaxMoreStart}
+              currentValue={inputMaxValue}
+            />
+            <Input
+              title="set start:"
+              callBack={getStartValueFromInput}
+              BkgColor={isMaxMoreStart}
+              currentValue={inputStartValue}
+            />
           </>
         ) : (
-          <CountNum isBtnRed={isBtnRed}>{countResult}</CountNum>
+          <CountNum $isRed={isRed}>{countResult}</CountNum>
         )}
       </CounterDisplay>
       <ButtonWrapper>
         {isSetWindowOpened ? (
           <>
-            <Button title="set" callBack={setStartValue} disabled={false} />
-            <Button title="back" callBack={changeSetStatus} disabled={false} />
+            <Button
+              title="set"
+              callBack={setStartValue}
+              disabled={!isMaxMoreStart}
+            />
+            <Button title="esc" callBack={changeSetStatus} disabled={false} />
           </>
         ) : (
           <>
-            <Button title="inc" callBack={increment} disabled={isBtnRed} />
+            <Button title="inc" callBack={increment} disabled={isRed} />
             <Button title="res" callBack={reset} disabled={isCountEmpty} />
             <Button title="set" callBack={changeSetStatus} disabled={false} />
           </>
@@ -84,10 +136,10 @@ const StyledCounter = styled.div`
   border-radius: 20px;
 `;
 
-const CountNum = styled.span<{ isBtnRed: boolean }>`
+const CountNum = styled.span<{ $isRed: boolean }>`
   font-size: 100px;
   font-weight: 600;
-  color: ${({ isBtnRed }) => (isBtnRed ? "#b22222" : "#333336")};
+  color: ${({ $isRed }) => ($isRed ? "#b22222" : "#333336")};
 `;
 
 const CounterDisplay = styled.div`
