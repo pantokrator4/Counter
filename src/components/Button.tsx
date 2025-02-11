@@ -3,13 +3,13 @@ import styled from "styled-components";
 type ButtonType = {
   title: string;
   callBack: () => void;
-  disabled: boolean;
+  disabled?: boolean;
 };
 
-export const Button = (props: ButtonType) => {
+export const Button = ({ title, callBack, disabled }: ButtonType) => {
   return (
-    <StyledButton onClick={props.callBack} disabled={props.disabled}>
-      {props.title}
+    <StyledButton onClick={callBack} disabled={disabled}>
+      {title}
     </StyledButton>
   );
 };

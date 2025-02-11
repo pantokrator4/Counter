@@ -3,29 +3,34 @@ import styled from "styled-components";
 
 type InputType = {
   title: string;
-  callBack: (value: string) => void;
+  onChange: (value: string) => void;
   BkgColor: boolean;
   currentValue: number;
 };
 
-export const Input = (props: InputType) => {
+export const InputWithTitle = ({ title, onChange, BkgColor, currentValue }: InputType) => {
   const onChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const newValue = e.currentTarget.value;
-    props.callBack(newValue);
+    onChange(newValue);
   };
 
   return (
-    <div style={{ display: "flex", alignItems: "center" }}>
-      <Title>{props.title}</Title>
+    <StyledInputWithTitle>
+      <Title>{title}</Title>
       <StyledInput
-        type="text"
-        value={props.currentValue}
+        type="number"
+        value={currentValue}
         onChange={onChangeHandler}
-        $BkgColor={props.BkgColor}
+        $BkgColor={BkgColor}
       />
-    </div>
+    </StyledInputWithTitle>
   );
 };
+
+const StyledInputWithTitle = styled.div`
+  display: flex;
+  align-items: center;
+`
 
 const Title = styled.span`
   font-size: 28px;

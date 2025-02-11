@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
-import { Button } from "./Button";
-import { Input } from "./Input";
+import { Button } from "./components/Button";
+import { Display } from "./components/Display";
 import styled from "styled-components";
 import "./App.css";
 
-export const Counter = () => {
-  const [countResult, setCountResult] = useState<number>(0);
-  const [isSetWindowOpened, setisSetWindowOpened] = useState<boolean>(false);
-  const [inputStartValue, setInputStartValue] = useState<number>(0);
-  const [inputMaxValue, setInputMaxValue] = useState<number>(10);
+const regex = /^\d*$/;
 
-  const regex = /^\d*$/;
+export const Counter = () => {
+  const [countResult, setCountResult] = useState(0);
+  const [isSetWindowOpened, setisSetWindowOpened] = useState(false);
+  const [inputStartValue, setInputStartValue] = useState(0);
+  const [inputMaxValue, setInputMaxValue] = useState(10);
 
   const isRed = countResult >= inputMaxValue;
   const isCountEmpty = countResult <= inputStartValue;
@@ -18,12 +18,12 @@ export const Counter = () => {
     inputMaxValue > inputStartValue &&
     inputMaxValue >= 0 &&
     inputStartValue >= 0;
-
+  console.log(inputMaxValue);
   useEffect(() => {
-    let valueAsString = localStorage.getItem("counterKey");
+    const valueAsString = localStorage.getItem("counterKey");
     let localInputStartValue = localStorage.getItem("localInputStartValue");
     let localInputMaxValue = localStorage.getItem("localInputMaxValue");
-    
+
     if (valueAsString) {
       setCountResult(JSON.parse(valueAsString));
     }
@@ -45,7 +45,7 @@ export const Counter = () => {
   }, [countResult, inputStartValue, inputMaxValue]);
 
   const increment = () => {
-    setCountResult(countResult + 1);
+    setCountResult((prev) => prev + 1);
   };
   const reset = () => {
     setCountResult(inputStartValue);
@@ -74,33 +74,18 @@ export const Counter = () => {
 
   return (
     <StyledCounter>
-      <CounterDisplay>
-        {isSetWindowOpened ? (
-          <>
-            {!isMaxMoreStart ? (
-              <span style={{ color: "#b22222", fontSize: "28px" }}>
-                Incorrect Values
-              </span>
-            ) : (
-              <span style={{ fontSize: "28px" }}>Set a value</span>
-            )}
-            <Input
-              title="set max:"
-              callBack={getMaxValueFromInput}
-              BkgColor={isMaxMoreStart}
-              currentValue={inputMaxValue}
-            />
-            <Input
-              title="set start:"
-              callBack={getStartValueFromInput}
-              BkgColor={isMaxMoreStart}
-              currentValue={inputStartValue}
-            />
-          </>
-        ) : (
-          <CountNum $isRed={isRed}>{countResult}</CountNum>
-        )}
-      </CounterDisplay>
+      <StyledDisplay>
+        <Display
+          countResult={countResult}
+          isRed={isRed}
+          isSetWindowOpened={isSetWindowOpened}
+          isMaxMoreStart={isMaxMoreStart}
+          inputStartValue={inputStartValue}
+          inputMaxValue={inputMaxValue}
+          getMaxValueFromInput={getMaxValueFromInput}
+          getStartValueFromInput={getStartValueFromInput}
+        />
+      </StyledDisplay>
       <ButtonWrapper>
         {isSetWindowOpened ? (
           <>
@@ -109,13 +94,12 @@ export const Counter = () => {
               callBack={setStartValue}
               disabled={!isMaxMoreStart}
             />
-            <Button title="esc" callBack={changeSetStatus} disabled={false} />
           </>
         ) : (
           <>
             <Button title="inc" callBack={increment} disabled={isRed} />
             <Button title="res" callBack={reset} disabled={isCountEmpty} />
-            <Button title="set" callBack={changeSetStatus} disabled={false} />
+            <Button title="set" callBack={changeSetStatus} />
           </>
         )}
       </ButtonWrapper>
@@ -136,13 +120,7 @@ const StyledCounter = styled.div`
   border-radius: 20px;
 `;
 
-const CountNum = styled.span<{ $isRed: boolean }>`
-  font-size: 100px;
-  font-weight: 600;
-  color: ${({ $isRed }) => ($isRed ? "#b22222" : "#333336")};
-`;
-
-const CounterDisplay = styled.div`
+const StyledDisplay = styled.div`
   display: flex;
   gap: 20px;
   flex-direction: column;
